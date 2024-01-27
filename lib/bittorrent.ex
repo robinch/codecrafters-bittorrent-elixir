@@ -4,7 +4,7 @@ defmodule Bittorrent.CLI do
   def main(argv) do
     case argv do
       ["decode", encoded_str | _] ->
-        {:ok, decoded_str} = Bencode.decode(encoded_str)
+        {:ok, decoded_str, _} = Bencode.decode(encoded_str)
         IO.puts(Jason.encode!(decoded_str))
 
       [command | _] ->
