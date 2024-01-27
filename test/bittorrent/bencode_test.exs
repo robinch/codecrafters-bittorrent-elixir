@@ -3,7 +3,23 @@ defmodule Bittorrent.BencodeTest do
 
   alias Bittorrent.Bencode
 
-  describe "list" do
+  describe "decode dictionary" do
+    test "with empty dictionary" do
+      assert {:ok, %{}, ""} == Bencode.decode("de")
+    end
+
+    test "with simple dictionary" do
+      assert {:ok, %{"foo" => "bar", "hello" => 52}, ""} ==
+               Bencode.decode("d3:foo3:bar5:helloi52ee")
+    end
+
+    test "with nested dictionary" do
+      assert {:ok, %{"bar" => %{"foo" => 52}}, ""} ==
+               Bencode.decode("d3:bard3:fooi52eee")
+    end
+  end
+
+  describe "decode list" do
     test "with empty list" do
       assert {:ok, [], ""} == Bencode.decode("le")
     end

@@ -1,6 +1,11 @@
 defmodule Bittorrent.Bencode do
   require Logger
 
+  def decode(<<?d, _rest::binary>> = encoded_value)
+      when is_binary(encoded_value) do
+    decode_dictionary(encoded_value)
+  end
+
   def decode(<<?l, _rest::binary>> = encoded_value)
       when is_binary(encoded_value) do
     decode_list(encoded_value)
@@ -19,6 +24,9 @@ defmodule Bittorrent.Bencode do
     do_decode_list(rest, [])
   end
 
+  def decode_dictionary(<<?d, rest::binary>>) do
+    do_decode_dictionary(rest, %{})
+  end
 
   def decode_integer(<<?i, rest::binary>> = encoded_value) do
     case String.split(rest, "e", parts: 2) do
@@ -41,6 +49,16 @@ defmodule Bittorrent.Bencode do
         Logger.error("Incorrect formatted string #{inspect(encoded_value)}")
         {:error, :could_not_decode}
     end
+  end
+
+  defp do_decode_dictionary(<<?e, rest::binary>>, acc) do
+    {:ok, acc, rest}
+  end
+
+  defp do_decode_dictionary(values, acc) do
+    {:ok, key, rest} = decode_string(values)
+    {:ok, value, rest} = decode(rest)
+    do_decode_dictionary(rest, Map.put(acc, key, value))
   end
 
   defp do_decode_list(<<?e, rest::binary>>, acc) do
