@@ -17,6 +17,12 @@ defmodule Bittorrent.MixProject do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
+  def application do
+    [
+      extra_applications: [:logger]
+    ]
+  end
+
   defp deps do
     [
       {:jason, "~> 1.2"}
