@@ -28,9 +28,24 @@ defmodule Bittorrent.Bencode.EncoderTest do
       assert "l5:helloi52ee" == Encoder.encode(["hello", 52])
     end
 
-
     test "with nested list" do
       assert "lli52eelleee" == Encoder.encode([[52], [[]]])
+    end
+  end
+
+  describe "encode dictionary" do
+    test "with empty dictionary" do
+      assert "de" == Encoder.encode(%{})
+    end
+
+    test "with simple dictionary" do
+      assert "d3:foo3:bar5:helloi52ee" ==
+               Encoder.encode(%{"foo" => "bar", "hello" => 52})
+    end
+
+    test "with nested dictionary" do
+      assert "d3:bard3:fooi52eee" ==
+               Encoder.encode(%{"bar" => %{"foo" => 52}})
     end
   end
 end
