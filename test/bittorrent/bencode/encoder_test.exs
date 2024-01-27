@@ -18,4 +18,19 @@ defmodule Bittorrent.Bencode.EncoderTest do
       assert "i-123e" == Encoder.encode(-123)
     end
   end
+
+  describe "encode list" do
+    test "with empty list" do
+      assert "le" == Encoder.encode([])
+    end
+
+    test "with simple list" do
+      assert "l5:helloi52ee" == Encoder.encode(["hello", 52])
+    end
+
+
+    test "with nested list" do
+      assert "lli52eelleee" == Encoder.encode([[52], [[]]])
+    end
+  end
 end
