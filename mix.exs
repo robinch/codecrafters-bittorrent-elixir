@@ -1,4 +1,4 @@
-defmodule App.MixProject do
+defmodule Bittorrent.MixProject do
   # NOTE: You do not need to change anything in this file.
   use Mix.Project
 
@@ -8,14 +8,18 @@ defmodule App.MixProject do
       version: "1.0.0",
       escript: [main_module: Bittorrent.CLI],
       elixir: "~> 1.10",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
+      deps: deps()
     ]
   end
-  
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
   defp deps do
     [
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.2"}
     ]
   end
 end
