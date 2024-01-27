@@ -5,7 +5,18 @@ defmodule Bittorrent.CLI do
     case argv do
       ["decode", encoded_str | _] ->
         {:ok, decoded_str, _} = Bencode.decode(encoded_str)
-        IO.puts(Jason.encode!(decoded_str))
+
+        decoded_str
+        |> Jason.encode!()
+        |> IO.puts()
+
+      ["info", file_path | _] ->
+        {:ok, binary} = File.read(file_path)
+        content = IO.iodata_to_binary(binary)
+
+        {:ok, decoded_content, _} = Bencode.decode(content)
+        IO.puts("Tracker URL: #{decoded_content["announce"]}")
+        IO.puts("Length: #{decoded_content["info"]["length"]}")
 
       [command | _] ->
         IO.puts("Unknown command: #{command}")

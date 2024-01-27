@@ -35,6 +35,7 @@ defmodule Bittorrent.Bencode do
 
       _ ->
         Logger.error("Incorrect formatted integer #{inspect(encoded_value)}")
+
         {:error, :could_not_decode}
     end
   end
@@ -42,7 +43,8 @@ defmodule Bittorrent.Bencode do
   def decode_string(encoded_value) do
     case String.split(encoded_value, ":", parts: 2) do
       [length, value] ->
-        {value, rest} = String.split_at(value, String.to_integer(length))
+        value_length = String.to_integer(length)
+        <<value::binary-size(value_length), rest::binary>> = value
         {:ok, value, rest}
 
       _ ->
@@ -58,6 +60,7 @@ defmodule Bittorrent.Bencode do
   defp do_decode_dictionary(values, acc) do
     {:ok, key, rest} = decode_string(values)
     {:ok, value, rest} = decode(rest)
+
     do_decode_dictionary(rest, Map.put(acc, key, value))
   end
 
