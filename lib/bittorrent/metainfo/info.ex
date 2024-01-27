@@ -20,9 +20,9 @@ defmodule Bittorrent.Metainfo.Info do
     }
   end
 
-  defp split_pieces(pieces), do: do_split_pieces(pieces, [])
+  def split_pieces(pieces), do: do_split_pieces(pieces, [])
 
-  defp do_split_pieces(<<>>, acc), do: Enum.reverse(acc)
+  defp do_split_pieces("", acc), do: Enum.reverse(acc)
 
   defp do_split_pieces(binary, acc) do
     <<chunk::binary-size(@pieces_split_size), rest::binary>> = binary

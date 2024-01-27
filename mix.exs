@@ -25,7 +25,8 @@ defmodule Bittorrent.MixProject do
 
   defp deps do
     [
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      {:req, "~> 0.4.8"}
     ]
   end
 end
