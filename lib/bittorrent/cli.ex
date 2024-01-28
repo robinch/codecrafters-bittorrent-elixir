@@ -2,6 +2,7 @@ defmodule Bittorrent.CLI do
   alias Bittorrent.Bencode
   alias Bittorrent.Metainfo
   alias Bittorrent.Tracker
+  alias Bittorrent.Peer
 
   def main(argv) do
     case argv do
@@ -13,6 +14,9 @@ defmodule Bittorrent.CLI do
 
       ["peers", file_path | _] ->
         peers(file_path)
+
+      ["handshake", file_path, address | _] ->
+        handshake(file_path, address)
 
       [command | _] ->
         IO.puts("Unknown command: #{command}")
@@ -35,20 +39,14 @@ defmodule Bittorrent.CLI do
   defp info(file_path) do
     metainfo = Metainfo.from_file(file_path)
 
-    info_hash =
-      metainfo.info_hash
-      |> Base.encode16()
-      |> String.downcase()
-
     piece_hashes =
       metainfo.info.piece_hashes
-      |> Enum.map(&Base.encode16/1)
-      |> Enum.map(&String.downcase/1)
+      |> Enum.map(&to_hex/1)
 
     IO.puts("Tracker URL: #{metainfo.announce}")
 
     IO.puts("Length: #{metainfo.info.length}")
-    IO.puts("Info Hash: #{info_hash}")
+    IO.puts("Info Hash: #{to_hex(metainfo.info_hash)}")
     IO.puts("Piece Length: #{metainfo.info.piece_length}")
     IO.puts("Piece Hashes:")
     Enum.each(piece_hashes, &IO.puts/1)
@@ -62,5 +60,17 @@ defmodule Bittorrent.CLI do
     peers = Enum.map(response.peers, fn {ip, port} -> "#{ip}:#{port}" end)
 
     Enum.each(peers, &IO.puts/1)
+  end
+
+  defp handshake(file_path, address) do
+    metainfo = Metainfo.from_file(file_path)
+    {:ok, peer_id} = Peer.handshake(metainfo, address)
+    IO.puts("Peer ID: #{to_hex(peer_id)}")
+  end
+
+  defp to_hex(binary) do
+    binary
+    |> Base.encode16()
+    |> String.downcase()
   end
 end

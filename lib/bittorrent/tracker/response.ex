@@ -27,4 +27,3 @@ defmodule Bittorrent.Tracker.Response do
     do_parse_peers(rest, [{ip_address, Integer.to_string(port)} | acc])
   end
 end
-
