@@ -1,16 +1,16 @@
 defmodule Bittorrent.Tracker.Client do
   alias Bittorrent.{Metainfo, Tracker}
 
-  @peer_id "00112233445566778899"
-  @port 6881
-
   def get(metainfo = %Metainfo{}) do
+    port = Application.get_env(:bittorrent, :port)
+    peer_id = Application.get_env(:bittorrent, :peer_id)
+
     %{status: 200, body: body} =
       Req.get!(metainfo.announce,
         params: [
           info_hash: metainfo.info_hash,
-          peer_id: @peer_id,
-          port: @port,
+          peer_id: peer_id,
+          port: port,
           uploaded: 0,
           downloaded: 0,
           left: metainfo.info.length,
