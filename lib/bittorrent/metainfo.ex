@@ -7,6 +7,7 @@ defmodule Bittorrent.Metainfo do
   @type t :: %__MODULE__{
           announce: String.t(),
           created_by: String.t(),
+          info_hash: binary(),
           info: Info.t()
         }
 
