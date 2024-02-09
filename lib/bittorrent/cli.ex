@@ -21,6 +21,9 @@ defmodule Bittorrent.CLI do
       ["download_piece", "-o", output_file_path, torrent_file_path, piece | _] ->
         download_piece(torrent_file_path, String.to_integer(piece), output_file_path)
 
+      ["download", "-o", output_file_path, torrent_file_path | _] ->
+        download(torrent_file_path, output_file_path)
+
       [command | _] ->
         IO.puts("Unknown command: #{command}")
         System.halt(1)
@@ -76,6 +79,13 @@ defmodule Bittorrent.CLI do
     {:ok, downloaded_piece} = Peer.download_piece(metainfo, piece)
     :ok = File.write(output_file_path, downloaded_piece)
     IO.puts("Piece #{piece} downloaded to #{output_file_path}.")
+  end
+
+  defp download(torrent_file_path, output_file_path) do
+    metainfo = Metainfo.from_file(torrent_file_path)
+    {:ok, file} = Peer.download(metainfo)
+    :ok = File.write(output_file_path, file)
+    IO.puts("Downloaded #{torrent_file_path} to #{output_file_path}.")
   end
 
   defp to_hex(binary) do

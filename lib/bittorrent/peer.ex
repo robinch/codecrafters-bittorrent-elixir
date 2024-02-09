@@ -54,7 +54,27 @@ defmodule Bittorrent.Peer do
     {:ok, @bitfield, _} = receive_message(socket)
     :ok = send_message(socket, @interested)
     {:ok, @unchoked, _} = receive_message(socket)
-    get_piece(socket, metainfo, piece_index)
+    {:ok, piece} = get_piece(socket, metainfo, piece_index)
+
+    :ok = close_connection(socket)
+
+    {:ok, piece}
+  end
+
+  def download(metainfo) do
+    total_length = metainfo.info.length
+    piece_length = metainfo.info.piece_length
+
+    nr_of_pieces = ceil(total_length / piece_length)
+
+    file =
+      for piece_index <- 0..(nr_of_pieces - 1) do
+        {:ok, piece} = download_piece(metainfo, piece_index)
+        piece
+      end
+      |> Enum.join()
+
+    {:ok, file}
   end
 
   defp get_piece(socket, metainfo, piece_index) do
@@ -171,6 +191,10 @@ defmodule Bittorrent.Peer do
     end
 
     {id, payload}
+  end
+
+  def close_connection(socket) do
+    :ok = :gen_tcp.close(socket)
   end
 
   defp peer_id(), do: Application.get_env(:bittorrent, :peer_id)
