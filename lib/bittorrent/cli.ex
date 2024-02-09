@@ -18,6 +18,9 @@ defmodule Bittorrent.CLI do
       ["handshake", file_path, address | _] ->
         handshake(file_path, address)
 
+      ["download_piece", "-o", output_file_path, torrent_file_path, piece | _] ->
+        download_piece(torrent_file_path, String.to_integer(piece), output_file_path)
+
       [command | _] ->
         IO.puts("Unknown command: #{command}")
         System.halt(1)
@@ -55,7 +58,7 @@ defmodule Bittorrent.CLI do
   defp peers(file_path) do
     metainfo = Metainfo.from_file(file_path)
 
-    response = Tracker.Client.get(metainfo)
+    {:ok, response} = Tracker.Client.get(metainfo)
 
     peers = Enum.map(response.peers, fn {ip, port} -> "#{ip}:#{port}" end)
 
@@ -64,8 +67,15 @@ defmodule Bittorrent.CLI do
 
   defp handshake(file_path, address) do
     metainfo = Metainfo.from_file(file_path)
-    {:ok, peer_id} = Peer.handshake(metainfo, address)
+    {:ok, _socket, peer_id} = Peer.handshake(metainfo, address)
     IO.puts("Peer ID: #{to_hex(peer_id)}")
+  end
+
+  defp download_piece(torrent_file_path, piece, output_file_path) do
+    metainfo = Metainfo.from_file(torrent_file_path)
+    {:ok, downloaded_piece} = Peer.download_piece(metainfo, piece)
+    :ok = File.write(output_file_path, downloaded_piece)
+    IO.puts("Piece #{piece} downloaded to #{output_file_path}.")
   end
 
   defp to_hex(binary) do
